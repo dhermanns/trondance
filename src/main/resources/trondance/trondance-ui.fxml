@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane alignment="center" hgap="10" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="trondance.Controller">
+   <columnConstraints>
+      <ColumnConstraints />
+      <ColumnConstraints minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints minWidth="10.0" prefWidth="100.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" />
+   </rowConstraints>
+   <children>
+      <Label text="IP 1. NodeMCU:" />
+      <TextField fx:id="nodeMcu1" text="192.168.0.169" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+      <Label text="IP 2. NodeMCU:" GridPane.rowIndex="1" />
+      <Label text="IP 3. NodeMCU:" GridPane.rowIndex="2" />
+      <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+      <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleFirstFlash" text="Flash" GridPane.columnIndex="2" />
+      <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleFirstMove" text="Move" GridPane.columnIndex="3" />
+
+      <Button mnemonicParsing="false" prefWidth="100.0" text="Play" GridPane.columnIndex="2" GridPane.rowIndex="3" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS" />
+      <Button mnemonicParsing="false" prefWidth="100.0" text="Exit" onAction="#handleExitButton" GridPane.columnIndex="3" GridPane.rowIndex="3" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS" />
+   </children>
+   <padding>
+      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+   </padding>
+</GridPane>
