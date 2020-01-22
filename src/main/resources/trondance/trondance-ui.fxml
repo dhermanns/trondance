@@ -18,6 +18,8 @@
       <RowConstraints minHeight="10.0" prefHeight="30.0" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" />
    </rowConstraints>
    <children>
       <Label text="IP 1. NodeMCU:" />
@@ -30,13 +32,33 @@
       <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleFirstFlash" text="Flash" GridPane.columnIndex="2" />
       <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleFirstMove" text="Move" GridPane.columnIndex="3" />
 
-      <Button mnemonicParsing="false" onAction="#handlePlay" prefWidth="100.0" text="Play" GridPane.columnIndex="2" GridPane.rowIndex="3" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS" />
-      <Button mnemonicParsing="false" onAction="#handleExitButton" prefWidth="100.0" text="Exit" GridPane.columnIndex="3" GridPane.rowIndex="3" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS" />
       <Label fx:id="mediaPlayerCurrentTimeLabel" text="00:00" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="TOP">
          <font>
             <Font size="36.0" />
          </font>
       </Label>
+
+      <Button mnemonicParsing="false" onAction="#handlePlay" prefWidth="100.0" text="Play" GridPane.columnIndex="2" GridPane.rowIndex="3" GridPane.valignment="TOP" />
+      <Button mnemonicParsing="false" onAction="#handlePause" prefWidth="100.0" text="Pause" GridPane.columnIndex="3" GridPane.rowIndex="3" GridPane.valignment="TOP" />
+
+      <Slider fx:id="playbackSlider" maxWidth="1.7976931348623157E308" GridPane.columnSpan="4" GridPane.rowIndex="4" />
+
+      <Button mnemonicParsing="false" onAction="#handleExitButton" prefWidth="100.0" text="Exit" GridPane.columnIndex="3" GridPane.rowIndex="6" GridPane.valignment="BOTTOM" />
+      <ScrollPane prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0">
+               <children>
+                  <TableView fx:id="lightCommandsTable" prefHeight="200.0">
+                    <columns>
+                      <TableColumn fx:id="timestampColumn" prefWidth="75.0" text="Zeitpunkt" />
+                      <TableColumn fx:id="personNumberColumn" prefWidth="75.0" text="Person" />
+                      <TableColumn fx:id="effectColumn" prefWidth="596" text="Effekt" />
+                    </columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+        </content>
+      </ScrollPane>
    </children>
    <padding>
       <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
