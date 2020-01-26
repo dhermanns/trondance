@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.AsyncRestTemplate;
+import org.springframework.web.client.RestTemplate;
 import trondance.domain.LightCommand;
 import trondance.domain.Timeline;
 import trondance.persistence.TimelineRepository;
@@ -27,6 +28,8 @@ public class Controller {
     private MediaPlayer mediaPlayer = new MediaPlayer(media);
 
     private Timeline timeline = new Timeline();
+
+    private Integer lastScrollPosition = 0;
 
     @FXML
     TextField nodeMcu1;
@@ -49,7 +52,7 @@ public class Controller {
     private TableColumn<LightCommand, String> effectColumn;
 
     @Autowired
-    AsyncRestTemplate restTemplate;
+    RestTemplate restTemplate;
 
     @Autowired
     TimelineRepository timelineRepository;
@@ -89,6 +92,14 @@ public class Controller {
                                     execute(commandsToExecute);
                                     timeline.advanceTimelineTo(time);
                                 }
+                                /*Integer position = timeline.getNextCommandPosition(time);
+                                if (position != -1 && position != lastScrollPosition) {
+                                    lightCommandsTable.scrollTo(position);
+                                    //lightCommandsTable.requestFocus();
+                                    lightCommandsTable.getSelectionModel().select(position);
+                                    //lightCommandsTable.getFocusModel().focus(position);
+                                    lastScrollPosition = position;
+                                }*/
                                 return String.format("%02d:%04.1f",
                                         (int) time.toMinutes() % 60,
                                         time.toSeconds() % 60);
@@ -105,8 +116,10 @@ public class Controller {
             });
 
             playbackSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-                mediaPlayer.seek(Duration.seconds(newValue.doubleValue()));
-                timeline.advanceTimelineTo(Duration.seconds(newValue.doubleValue()));
+                if (mediaPlayer.getStatus() != MediaPlayer.Status.PLAYING) {
+                    mediaPlayer.seek(Duration.seconds(newValue.doubleValue()));
+                    timeline.advanceTimelineTo(Duration.seconds(newValue.doubleValue()));
+                }
             });
 
             mediaPlayer.play();
@@ -133,7 +146,7 @@ public class Controller {
 
         execute(nodeMcu1.getText(), "flash");
         recordCommand(1, "flash");
-        timeline.advanceTimelineTo(mediaPlayer.getCurrentTime());
+        timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
         System.out.println("Flashed!");
     }
 
@@ -147,6 +160,7 @@ public class Controller {
 
         execute(nodeMcu1.getText(), "move");
         recordCommand(1, "move");
+        timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
         System.out.println("Moved!");
     }
 

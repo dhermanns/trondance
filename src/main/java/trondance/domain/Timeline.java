@@ -38,4 +38,15 @@ public class Timeline {
     public void advanceTimelineTo(Duration newExecutedUntilDuration) {
         this.executedUntilDuration = newExecutedUntilDuration;
     }
+
+    public Integer getNextCommandPosition(Duration currentTime) {
+        Integer index = 0;
+        for (LightCommand command : lightCommands) {
+            if (command.getDuration().greaterThanOrEqualTo(currentTime)) {
+                return index;
+            }
+            index++;
+        }
+        return -1;
+    }
 }

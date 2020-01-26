@@ -5,6 +5,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.AsyncClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,8 +15,14 @@ import org.springframework.web.client.RestTemplate;
 public class AppConfiguration {
 
     @Bean
-    AsyncRestTemplate asyncRestTemplate() {
-        AsyncRestTemplate restTemplate = new AsyncRestTemplate();
+    RestTemplate restTemplate() {
+        /*ThreadPoolTaskScheduler taskExecutor = new ThreadPoolTaskScheduler();
+        taskExecutor.setPoolSize(10);
+        SimpleClientHttpRequestFactory simpleClientHttpRequestFactory = new SimpleClientHttpRequestFactory();
+        simpleClientHttpRequestFactory.setTaskExecutor(taskExecutor);
+        simpleClientHttpRequestFactory.setConnectTimeout(1000);
+        simpleClientHttpRequestFactory.setReadTimeout(1000);*/
+        RestTemplate restTemplate = new RestTemplate();
         return restTemplate;
     }
 }
