@@ -1,54 +1,53 @@
 package trondance.domain;
 
 import javafx.beans.property.*;
-
-import java.time.Instant;
+import javafx.util.Duration;
 
 public class LightCommand {
 
-    private ObjectProperty<Instant> timestamp;
-    private IntegerProperty personNumber;
-    private StringProperty effect;
+    private ObjectProperty<Duration> durationProperty;
+    private IntegerProperty personNumberProperty;
+    private StringProperty effectProperty;
 
-    public LightCommand(Instant timestamp, Integer personNumber, String effect) {
-        this.timestamp = new SimpleObjectProperty<>(timestamp);
-        this.personNumber = new SimpleIntegerProperty(personNumber);
-        this.effect = new SimpleStringProperty(effect);
+    public LightCommand(Duration duration, Integer personNumber, String effect) {
+        this.durationProperty = new SimpleObjectProperty<>(duration);
+        this.personNumberProperty = new SimpleIntegerProperty(personNumber);
+        this.effectProperty = new SimpleStringProperty(effect);
     }
 
-    public Instant getTimestamp() {
-        return timestamp.get();
+    public Duration getDuration() {
+        return durationProperty.get();
     }
 
-    public ObjectProperty<Instant> timestampProperty() {
-        return timestamp;
+    public ObjectProperty<Duration> durationProperty() {
+        return durationProperty;
     }
 
-    public void setTimestamp(Instant timestamp) {
-        this.timestamp = new SimpleObjectProperty<>(timestamp);
+    public void setDuration(Duration duration) {
+        this.durationProperty = new SimpleObjectProperty<>(duration);
     }
 
     public Integer getPersonNumber() {
-        return personNumber.get();
+        return personNumberProperty.get();
     }
 
     public IntegerProperty personNumberProperty() {
-        return personNumber;
+        return personNumberProperty;
     }
 
-    public void setPersonNumber(IntegerProperty personNumber) {
-        this.personNumber = personNumber;
+    public void setPersonNumber(Integer personNumber) {
+        this.personNumberProperty = new SimpleIntegerProperty(personNumber);
     }
 
     public String getEffect() {
-        return effect.get();
+        return effectProperty.get();
     }
 
     public StringProperty effectProperty() {
-        return effect;
+        return effectProperty;
     }
 
     public void setEffect(StringProperty effect) {
-        this.effect = effect;
+        this.effectProperty = effect;
     }
 }

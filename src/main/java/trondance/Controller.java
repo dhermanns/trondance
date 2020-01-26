@@ -1,42 +1,39 @@
 package trondance;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.AsyncRestTemplate;
 import trondance.domain.LightCommand;
+import trondance.domain.Timeline;
+import trondance.persistence.TimelineRepository;
+import trondance.util.DurationHelper;
 
 import javax.inject.Named;
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.util.List;
 
 @Named
 public class Controller {
 
     private Media media = new Media(new File("trondance.wav").toURI().toString());
     private MediaPlayer mediaPlayer = new MediaPlayer(media);
-    private SimpleDateFormat playTimeFormatter = new SimpleDateFormat("mm:ss:SSS");
 
-    private ObservableList<LightCommand> lightCommands = FXCollections.observableArrayList();
+    private Timeline timeline = new Timeline();
 
     @FXML
     TextField nodeMcu1;
+    @FXML
+    TextField nodeMcu2;
+    @FXML
+    TextField nodeMcu3;
     @FXML
     Label mediaPlayerCurrentTimeLabel;
     @FXML
@@ -45,38 +42,36 @@ public class Controller {
     @FXML
     TableView<LightCommand> lightCommandsTable;
     @FXML
-    private TableColumn<LightCommand, Instant> timestampColumn;
+    private TableColumn<LightCommand, Duration> timestampColumn;
     @FXML
     private TableColumn<LightCommand, Integer> personNumberColumn;
     @FXML
     private TableColumn<LightCommand, String> effectColumn;
 
     @Autowired
-    RestTemplate restTemplate;
+    AsyncRestTemplate restTemplate;
+
+    @Autowired
+    TimelineRepository timelineRepository;
 
     @FXML
     private void initialize() {
-        timestampColumn.setCellValueFactory(cellData -> cellData.getValue().timestampProperty());
-        timestampColumn.setCellFactory(col -> new TableCell<LightCommand, Instant>() {
+        timestampColumn.setCellValueFactory(cellData -> cellData.getValue().durationProperty());
+        timestampColumn.setCellFactory(col -> new TableCell<LightCommand, Duration>() {
             @Override
-            protected void updateItem(Instant item, boolean empty) {
+            protected void updateItem(Duration item, boolean empty) {
 
                 super.updateItem(item, empty);
                 if (empty)
                     setText(null);
                 else
-                    setText(playTimeFormatter.format(Date.from(item)));
+                    setText(DurationHelper.toString(item));
             }
         });
         personNumberColumn.setCellValueFactory(
                 cellData -> cellData.getValue().personNumberProperty().asObject());
         effectColumn.setCellValueFactory(
                 cellData -> cellData.getValue().effectProperty());
-        lightCommands.add(new LightCommand(Instant.ofEpochSecond(1), 1, "Flash"));
-        lightCommands.add(new LightCommand(Instant.ofEpochSecond(2), 1, "Flash"));
-        lightCommands.add(new LightCommand(Instant.ofEpochSecond(3), 1, "Flash"));
-        lightCommands.add(new LightCommand(Instant.ofEpochSecond(4), 1, "Move"));
-        lightCommandsTable.setItems(lightCommands);
 
         playbackSlider.setMin(0);
         playbackSlider.setMax(668);
@@ -84,9 +79,16 @@ public class Controller {
         mediaPlayer.setCycleCount(1);
 
         mediaPlayer.setOnReady(() -> {
+
             mediaPlayerCurrentTimeLabel.textProperty().bind(
                     Bindings.createStringBinding(() -> {
                                 Duration time = mediaPlayer.getCurrentTime();
+                                if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING){
+                                    List<LightCommand> commandsToExecute =
+                                            timeline.determineCommandsToExecute(time);
+                                    execute(commandsToExecute);
+                                    timeline.advanceTimelineTo(time);
+                                }
                                 return String.format("%02d:%04.1f",
                                         (int) time.toMinutes() % 60,
                                         time.toSeconds() % 60);
@@ -104,8 +106,16 @@ public class Controller {
 
             playbackSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
                 mediaPlayer.seek(Duration.seconds(newValue.doubleValue()));
+                timeline.advanceTimelineTo(Duration.seconds(newValue.doubleValue()));
             });
+
+            mediaPlayer.play();
+            mediaPlayer.pause();
+            mediaPlayer.seek(Duration.ZERO);
         });
+
+        timeline = timelineRepository.load();
+        lightCommandsTable.setItems(timeline.getLightCommandList());
     }
 
     @FXML
@@ -122,23 +132,60 @@ public class Controller {
     private void handleFirstFlash(ActionEvent event) {
 
         execute(nodeMcu1.getText(), "flash");
+        recordCommand(1, "flash");
+        timeline.advanceTimelineTo(mediaPlayer.getCurrentTime());
         System.out.println("Flashed!");
+    }
+
+    private void recordCommand(int person, String flash) {
+        timeline.add(new LightCommand(
+                mediaPlayer.getCurrentTime(), person, flash));
     }
 
     @FXML
     private void handleFirstMove(ActionEvent event) {
 
         execute(nodeMcu1.getText(), "move");
+        recordCommand(1, "move");
         System.out.println("Moved!");
     }
 
     @FXML
     private void handleExitButton(ActionEvent event) {
+        timelineRepository.save(timeline);
         System.exit(0);
     }
 
     private void execute(String ip, String command) {
-        restTemplate.exchange(
-                String.format("http://%s/%s", ip, command), HttpMethod.GET, HttpEntity.EMPTY, String.class);
+
+        try {
+            restTemplate.exchange(
+                    String.format("http://%s/%s", ip, command), HttpMethod.GET, HttpEntity.EMPTY, String.class);
+        } catch (Exception ignore) {
+        }
+    }
+
+    private void execute(List<LightCommand> commands) {
+
+        try {
+            commands.parallelStream()
+                    .forEach(command -> {
+                        System.out.println(String.format("Executed command '%s' for person '%s'.",
+                                command.getEffect(), command.getPersonNumber()));
+                        restTemplate.exchange(
+                                String.format("http://%s/%s", getIp(command.getPersonNumber()), command.getEffect()),
+                                HttpMethod.GET, HttpEntity.EMPTY, String.class);
+                    });
+        } catch (Exception ignore) {
+        }
+    }
+
+    private String getIp(Integer personNumber) {
+        switch(personNumber) {
+            case 1: return nodeMcu1.getText();
+            case 2: return nodeMcu2.getText();
+            case 3: return nodeMcu3.getText();
+        }
+        throw new IllegalStateException();
     }
 }
