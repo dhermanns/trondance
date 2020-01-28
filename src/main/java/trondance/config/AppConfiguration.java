@@ -22,7 +22,13 @@ public class AppConfiguration {
         simpleClientHttpRequestFactory.setTaskExecutor(taskExecutor);
         simpleClientHttpRequestFactory.setConnectTimeout(1000);
         simpleClientHttpRequestFactory.setReadTimeout(1000);*/
-        RestTemplate restTemplate = new RestTemplate();
+
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setConnectionRequestTimeout(500);
+        httpRequestFactory.setConnectTimeout(500);
+        httpRequestFactory.setReadTimeout(500);
+
+        RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
         return restTemplate;
     }
 }

@@ -18,7 +18,7 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception{
+    public void start(Stage stage) {
 
         primaryStage = stage;
         ApplicationContext context = new AnnotationConfigApplicationContext(AppConfiguration.class);
@@ -26,12 +26,6 @@ public class Main extends Application {
 
         mainStage.setTitle("Tron Dance Player");
         mainStage.show();
-
-    }
-
-    @FXML
-    private void handleButtonAction(ActionEvent event) {
-        System.out.println("Hello World!");
     }
 
     public static void main(String[] args) {

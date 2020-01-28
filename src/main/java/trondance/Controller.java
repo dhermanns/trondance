@@ -10,7 +10,6 @@ import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 import trondance.domain.LightCommand;
 import trondance.domain.Timeline;
@@ -90,7 +89,7 @@ public class Controller {
                                     List<LightCommand> commandsToExecute =
                                             timeline.determineCommandsToExecute(time);
                                     execute(commandsToExecute);
-                                    timeline.advanceTimelineTo(time);
+                                    timeline.advanceTimelineTo(time.add(Duration.ONE));
                                 }
                                 /*Integer position = timeline.getNextCommandPosition(time);
                                 if (position != -1 && position != lastScrollPosition) {
@@ -118,7 +117,8 @@ public class Controller {
             playbackSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
                 if (mediaPlayer.getStatus() != MediaPlayer.Status.PLAYING) {
                     mediaPlayer.seek(Duration.seconds(newValue.doubleValue()));
-                    timeline.advanceTimelineTo(Duration.seconds(newValue.doubleValue()));
+                    timeline.advanceTimelineTo(
+                            Duration.seconds(newValue.doubleValue()).add(Duration.ONE));
                 }
             });
 
@@ -150,6 +150,15 @@ public class Controller {
         System.out.println("Flashed!");
     }
 
+    @FXML
+    private void handleSecondFlash(ActionEvent event) {
+
+        execute(nodeMcu2.getText(), "flash");
+        recordCommand(2, "flash");
+        timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
+        System.out.println("Flashed!");
+    }
+
     private void recordCommand(int person, String flash) {
         timeline.add(new LightCommand(
                 mediaPlayer.getCurrentTime(), person, flash));
@@ -157,11 +166,26 @@ public class Controller {
 
     @FXML
     private void handleFirstMove(ActionEvent event) {
-
         execute(nodeMcu1.getText(), "move");
         recordCommand(1, "move");
         timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
         System.out.println("Moved!");
+    }
+
+    @FXML
+    private void handleSecondMove(ActionEvent event) {
+        execute(nodeMcu2.getText(), "move");
+        recordCommand(2, "move");
+        timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
+        System.out.println("Moved!");
+    }
+
+    @FXML
+    private void handleDeleteButton(ActionEvent event) {
+        Integer focusedIndex = lightCommandsTable.getSelectionModel().getFocusedIndex();
+        if (focusedIndex >= 0) {
+            timeline.removeAtIndex(focusedIndex);
+        }
     }
 
     @FXML

@@ -49,4 +49,8 @@ public class Timeline {
         }
         return -1;
     }
+
+    public void removeAtIndex(int focusedIndex) {
+        lightCommands.remove(focusedIndex);
+    }
 }
