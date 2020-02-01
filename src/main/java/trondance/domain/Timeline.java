@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class Timeline {
 
     private ObservableList<LightCommand> lightCommands = FXCollections.observableArrayList();
-    private Duration executedUntilDuration = Duration.ZERO;
+    private Duration executedUntilDuration = Duration.ZERO.subtract(Duration.ONE);
 
     public void add(LightCommand flash) {
         lightCommands.add(flash);

@@ -5,78 +5,68 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<GridPane alignment="center" hgap="10" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="10"
-          xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="trondance.Controller">
+<GridPane alignment="center" hgap="10" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="trondance.Controller">
     <columnConstraints>
-        <ColumnConstraints/>
-        <ColumnConstraints minWidth="10.0" prefWidth="100.0"/>
-        <ColumnConstraints minWidth="10.0" prefWidth="100.0"/>
-        <ColumnConstraints minWidth="10.0" prefWidth="100.0"/>
+        <ColumnConstraints />
+        <ColumnConstraints minWidth="10.0" prefWidth="100.0" />
+        <ColumnConstraints minWidth="10.0" prefWidth="100.0" />
+        <ColumnConstraints minWidth="10.0" prefWidth="100.0" />
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints/>
-        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
-        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
-        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
-        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
-        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
-        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" />
     </rowConstraints>
     <children>
-        <Label text="IP 1. NodeMCU:"/>
-        <TextField fx:id="nodeMcu1" text="192.168.0.169" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS"/>
+        <Label text="IP 1. NodeMCU:" />
+        <TextField fx:id="nodeMcu1" text="192.168.0.169" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+        <ChoiceBox fx:id="nodeMcu1ChoiceBox" prefWidth="150.0" GridPane.columnIndex="2" />
+        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleExecuteFirst" text="Execute" GridPane.columnIndex="3" />
 
-        <Label text="IP 3. NodeMCU:" GridPane.rowIndex="2"/>
-        <TextField fx:id="nodeMcu3" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="IP 2. NodeMCU:" GridPane.rowIndex="1" />
+        <TextField fx:id="nodeMcu2" text="192.168.0.110" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+        <ChoiceBox fx:id="nodeMcu2ChoiceBox" prefWidth="150.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleExecuteSecond" text="Execute" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
-        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleFirstFlash" text="Flash"
-                GridPane.columnIndex="2"/>
-        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleFirstMove" text="Move"
-                GridPane.columnIndex="3"/>
+        <Label text="IP 3. NodeMCU:" GridPane.rowIndex="2" />
+        <TextField fx:id="nodeMcu3" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+        <ChoiceBox fx:id="nodeMcu3ChoiceBox" prefWidth="150.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleExecuteSecond" text="Execute" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
-        <Label text="IP 2. NodeMCU:" GridPane.rowIndex="1"/>
-        <TextField fx:id="nodeMcu2" text="192.168.0.110" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleSecondFlash" text="Flash"
-                GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleSecondMove" text="Move"
-                GridPane.rowIndex="1" GridPane.columnIndex="3"/>
-
-        <Label fx:id="mediaPlayerCurrentTimeLabel" text="00:00" GridPane.columnSpan="2" GridPane.rowIndex="3"
-               GridPane.valignment="TOP">
+        <Label fx:id="mediaPlayerCurrentTimeLabel" text="00:00" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="TOP">
             <font>
-                <Font size="36.0"/>
+                <Font size="36.0" />
             </font>
         </Label>
 
-        <Button mnemonicParsing="false" onAction="#handlePlay" prefWidth="100.0" text="Play" GridPane.columnIndex="2"
-                GridPane.rowIndex="3" GridPane.valignment="TOP"/>
-        <Button mnemonicParsing="false" onAction="#handlePause" prefWidth="100.0" text="Pause" GridPane.columnIndex="3"
-                GridPane.rowIndex="3" GridPane.valignment="TOP"/>
+        <Button mnemonicParsing="false" onAction="#handlePlay" prefWidth="100.0" text="Play" GridPane.columnIndex="2" GridPane.rowIndex="3" GridPane.valignment="TOP" />
+        <Button mnemonicParsing="false" onAction="#handlePause" prefWidth="100.0" text="Pause" GridPane.columnIndex="3" GridPane.rowIndex="3" GridPane.valignment="TOP" />
 
-        <Slider fx:id="playbackSlider" maxWidth="1.7976931348623157E308" GridPane.columnSpan="4" GridPane.rowIndex="4"/>
-        <ScrollPane prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS"
-                    GridPane.rowIndex="5" GridPane.vgrow="ALWAYS">
+        <Slider fx:id="playbackSlider" maxWidth="1.7976931348623157E308" GridPane.columnSpan="4" GridPane.rowIndex="4" />
+        <ScrollPane prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0">
                     <children>
                         <TableView fx:id="lightCommandsTable" prefHeight="200.0">
                             <columns>
-                                <TableColumn fx:id="timestampColumn" prefWidth="75.0" text="Zeitpunkt"/>
-                                <TableColumn fx:id="personNumberColumn" prefWidth="75.0" text="Person"/>
-                                <TableColumn fx:id="effectColumn" prefWidth="596" text="Effekt"/>
+                                <TableColumn fx:id="timestampColumn" prefWidth="75.0" text="Zeitpunkt" />
+                                <TableColumn fx:id="personNumberColumn" prefWidth="75.0" text="Person" />
+                                <TableColumn fx:id="effectColumn" prefWidth="596" text="Effekt" />
                             </columns>
                         </TableView>
                     </children>
                 </AnchorPane>
             </content>
         </ScrollPane>
-        <Button mnemonicParsing="false" onAction="#handleDeleteButton" prefWidth="100.0" text="Delete"
-                GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.valignment="BOTTOM"/>
-        <Button mnemonicParsing="false" onAction="#handleExitButton" prefWidth="100.0" text="Exit"
-                GridPane.columnIndex="3" GridPane.rowIndex="6" GridPane.valignment="BOTTOM"/>
+        <Button mnemonicParsing="false" onAction="#handleDeleteButton" prefWidth="100.0" text="Delete" GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.valignment="BOTTOM" />
+        <CheckBox fx:id="recordCheckBox" mnemonicParsing="false" text="Record" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+        <Button mnemonicParsing="false" onAction="#handleExitButton" prefWidth="100.0" text="Exit" GridPane.columnIndex="3" GridPane.rowIndex="6" GridPane.valignment="BOTTOM" />
     </children>
     <padding>
-        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0"/>
+        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
     </padding>
 </GridPane>

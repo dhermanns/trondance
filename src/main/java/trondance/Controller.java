@@ -1,9 +1,14 @@
 package trondance;
 
 import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
@@ -33,9 +38,17 @@ public class Controller {
     @FXML
     TextField nodeMcu1;
     @FXML
+    ChoiceBox nodeMcu1ChoiceBox;
+    @FXML
     TextField nodeMcu2;
     @FXML
+    ChoiceBox nodeMcu2ChoiceBox;
+    @FXML
     TextField nodeMcu3;
+    @FXML
+    ChoiceBox nodeMcu3ChoiceBox;
+    @FXML
+    CheckBox recordCheckBox;
     @FXML
     Label mediaPlayerCurrentTimeLabel;
     @FXML
@@ -58,8 +71,61 @@ public class Controller {
 
     @FXML
     private void initialize() {
+        ObservableList<String> nodeMcuCommandList = FXCollections.observableArrayList("flash", "move", "movehands", "fill", "turnoff");
+
+        nodeMcu1ChoiceBox.setItems(nodeMcuCommandList);
+        nodeMcu1ChoiceBox.getSelectionModel().select(0);
+        nodeMcu2ChoiceBox.setItems(nodeMcuCommandList);
+        nodeMcu2ChoiceBox.getSelectionModel().select(0);
+        nodeMcu3ChoiceBox.setItems(nodeMcuCommandList);
+        nodeMcu3ChoiceBox.getSelectionModel().select(0);
+
         timestampColumn.setCellValueFactory(cellData -> cellData.getValue().durationProperty());
         timestampColumn.setCellFactory(col -> new TableCell<LightCommand, Duration>() {
+
+            private TextField textField;
+
+            @Override
+            public void startEdit() {
+                super.startEdit();
+
+                if (textField == null) {
+                    createTextField();
+                }
+
+                setGraphic(textField);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                textField.selectAll();
+            }
+
+            @Override
+            public void cancelEdit() {
+                super.cancelEdit();
+
+                setText(String.valueOf(getItem()));
+                setContentDisplay(ContentDisplay.TEXT_ONLY);
+            }
+
+            private String getString() {
+                return getItem() == null ? "" : getItem().toString();
+            }
+
+            private void createTextField() {
+                textField = new TextField(getString());
+                textField.setMinWidth(this.getWidth() - this.getGraphicTextGap()*2);
+                textField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+                    @Override
+                    public void handle(KeyEvent t) {
+                        if (t.getCode() == KeyCode.ENTER) {
+                            commitEdit(Duration.valueOf(textField.getText()));
+                        } else if (t.getCode() == KeyCode.ESCAPE) {
+                            cancelEdit();
+                        }
+                    }
+                });
+            }
+
             @Override
             protected void updateItem(Duration item, boolean empty) {
 
@@ -89,7 +155,7 @@ public class Controller {
                                     List<LightCommand> commandsToExecute =
                                             timeline.determineCommandsToExecute(time);
                                     execute(commandsToExecute);
-                                    timeline.advanceTimelineTo(time.add(Duration.ONE));
+                                    timeline.advanceTimelineTo(time);
                                 }
                                 /*Integer position = timeline.getNextCommandPosition(time);
                                 if (position != -1 && position != lastScrollPosition) {
@@ -129,6 +195,7 @@ public class Controller {
 
         timeline = timelineRepository.load();
         lightCommandsTable.setItems(timeline.getLightCommandList());
+        lightCommandsTable.setEditable(true);
     }
 
     @FXML
@@ -142,42 +209,30 @@ public class Controller {
     }
 
     @FXML
-    private void handleFirstFlash(ActionEvent event) {
+    private void handleExecuteFirst(ActionEvent event) {
 
-        execute(nodeMcu1.getText(), "flash");
-        recordCommand(1, "flash");
-        timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
-        System.out.println("Flashed!");
+        execute(nodeMcu1.getText(), nodeMcu1ChoiceBox.getSelectionModel().getSelectedItem().toString());
+        if (recordCheckBox.isSelected()) {
+            recordCommand(1, nodeMcu1ChoiceBox.getSelectionModel().getSelectedItem().toString());
+            timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
+        }
+        System.out.println(String.format("Executed %s!", nodeMcu1ChoiceBox.getSelectionModel().getSelectedItem().toString()));
     }
 
     @FXML
-    private void handleSecondFlash(ActionEvent event) {
+    private void handleExecuteSecond(ActionEvent event) {
 
-        execute(nodeMcu2.getText(), "flash");
-        recordCommand(2, "flash");
-        timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
-        System.out.println("Flashed!");
+        execute(nodeMcu2.getText(), nodeMcu2ChoiceBox.getSelectionModel().getSelectedItem().toString());
+        if (recordCheckBox.isSelected()) {
+            recordCommand(2, nodeMcu2ChoiceBox.getSelectionModel().getSelectedItem().toString());
+            timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
+        }
+        System.out.println(String.format("Executed %s!", nodeMcu2ChoiceBox.getSelectionModel().getSelectedItem().toString()));
     }
 
     private void recordCommand(int person, String flash) {
         timeline.add(new LightCommand(
                 mediaPlayer.getCurrentTime(), person, flash));
-    }
-
-    @FXML
-    private void handleFirstMove(ActionEvent event) {
-        execute(nodeMcu1.getText(), "move");
-        recordCommand(1, "move");
-        timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
-        System.out.println("Moved!");
-    }
-
-    @FXML
-    private void handleSecondMove(ActionEvent event) {
-        execute(nodeMcu2.getText(), "move");
-        recordCommand(2, "move");
-        timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
-        System.out.println("Moved!");
     }
 
     @FXML
