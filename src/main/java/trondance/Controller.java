@@ -3,12 +3,9 @@ package trondance;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
@@ -25,6 +22,7 @@ import javax.inject.Named;
 import java.io.File;
 import java.util.List;
 
+@SuppressWarnings("rawtypes")
 @Named
 public class Controller {
 
@@ -32,8 +30,6 @@ public class Controller {
     private MediaPlayer mediaPlayer = new MediaPlayer(media);
 
     private Timeline timeline = new Timeline();
-
-    private Integer lastScrollPosition = 0;
 
     @FXML
     TextField nodeMcu1;
@@ -69,6 +65,7 @@ public class Controller {
     @Autowired
     TimelineRepository timelineRepository;
 
+    @SuppressWarnings("unchecked")
     @FXML
     private void initialize() {
         ObservableList<String> nodeMcuCommandList = FXCollections.observableArrayList("flash", "move", "movehands", "fill", "turnoff");
@@ -81,9 +78,10 @@ public class Controller {
         nodeMcu3ChoiceBox.getSelectionModel().select(0);
 
         timestampColumn.setCellValueFactory(cellData -> cellData.getValue().durationProperty());
-        timestampColumn.setCellFactory(col -> new TableCell<LightCommand, Duration>() {
+        timestampColumn.setCellFactory(col -> new TableCell<>() {
 
             private TextField textField;
+            private Label label;
 
             @Override
             public void startEdit() {
@@ -102,26 +100,30 @@ public class Controller {
             public void cancelEdit() {
                 super.cancelEdit();
 
-                setText(String.valueOf(getItem()));
+                setText(DurationHelper.toString(getItem()));
+                setContentDisplay(ContentDisplay.TEXT_ONLY);
+            }
+
+            @Override
+            public void commitEdit(Duration newDuration) {
+                super.commitEdit(newDuration);
+
+                setText(DurationHelper.toString(getItem()));
                 setContentDisplay(ContentDisplay.TEXT_ONLY);
             }
 
             private String getString() {
-                return getItem() == null ? "" : getItem().toString();
+                return getItem() == null ? "" : DurationHelper.toString(getItem());
             }
 
             private void createTextField() {
                 textField = new TextField(getString());
-                textField.setMinWidth(this.getWidth() - this.getGraphicTextGap()*2);
-                textField.setOnKeyPressed(new EventHandler<KeyEvent>() {
-
-                    @Override
-                    public void handle(KeyEvent t) {
-                        if (t.getCode() == KeyCode.ENTER) {
-                            commitEdit(Duration.valueOf(textField.getText()));
-                        } else if (t.getCode() == KeyCode.ESCAPE) {
-                            cancelEdit();
-                        }
+                textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
+                textField.setOnKeyPressed(keyEvent -> {
+                    if (keyEvent.getCode() == KeyCode.ENTER) {
+                        commitEdit(DurationHelper.valueOf(textField.getText()));
+                    } else if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                        cancelEdit();
                     }
                 });
             }
@@ -136,6 +138,9 @@ public class Controller {
                     setText(DurationHelper.toString(item));
             }
         });
+        timestampColumn.setOnEditCommit(
+                cellEditEvent -> cellEditEvent.getTableView().getItems().get(
+                        cellEditEvent.getTablePosition().getRow()).setDuration(cellEditEvent.getNewValue()));
         personNumberColumn.setCellValueFactory(
                 cellData -> cellData.getValue().personNumberProperty().asObject());
         effectColumn.setCellValueFactory(
@@ -157,14 +162,6 @@ public class Controller {
                                     execute(commandsToExecute);
                                     timeline.advanceTimelineTo(time);
                                 }
-                                /*Integer position = timeline.getNextCommandPosition(time);
-                                if (position != -1 && position != lastScrollPosition) {
-                                    lightCommandsTable.scrollTo(position);
-                                    //lightCommandsTable.requestFocus();
-                                    lightCommandsTable.getSelectionModel().select(position);
-                                    //lightCommandsTable.getFocusModel().focus(position);
-                                    lastScrollPosition = position;
-                                }*/
                                 return String.format("%02d:%04.1f",
                                         (int) time.toMinutes() % 60,
                                         time.toSeconds() % 60);
@@ -176,9 +173,8 @@ public class Controller {
                             () -> mediaPlayer.getTotalDuration().toSeconds(),
                             mediaPlayer.totalDurationProperty()));
 
-            mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
-                playbackSlider.setValue(newValue.toSeconds());
-            });
+            mediaPlayer.currentTimeProperty().addListener(
+                    (observable, oldValue, newValue) -> playbackSlider.setValue(newValue.toSeconds()));
 
             playbackSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
                 if (mediaPlayer.getStatus() != MediaPlayer.Status.PLAYING) {
@@ -196,20 +192,25 @@ public class Controller {
         timeline = timelineRepository.load();
         lightCommandsTable.setItems(timeline.getLightCommandList());
         lightCommandsTable.setEditable(true);
+        lightCommandsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                mediaPlayer.seek(newSelection.getDuration());
+            }
+        });
     }
 
     @FXML
-    private void handlePlay(ActionEvent event) {
+    private void handlePlay() {
         mediaPlayer.play();
     }
 
     @FXML
-    private void handlePause(ActionEvent event) {
+    private void handlePause() {
         mediaPlayer.pause();
     }
 
     @FXML
-    private void handleExecuteFirst(ActionEvent event) {
+    private void handleExecuteFirst() {
 
         execute(nodeMcu1.getText(), nodeMcu1ChoiceBox.getSelectionModel().getSelectedItem().toString());
         if (recordCheckBox.isSelected()) {
@@ -220,7 +221,7 @@ public class Controller {
     }
 
     @FXML
-    private void handleExecuteSecond(ActionEvent event) {
+    private void handleExecuteSecond() {
 
         execute(nodeMcu2.getText(), nodeMcu2ChoiceBox.getSelectionModel().getSelectedItem().toString());
         if (recordCheckBox.isSelected()) {
@@ -236,15 +237,15 @@ public class Controller {
     }
 
     @FXML
-    private void handleDeleteButton(ActionEvent event) {
-        Integer focusedIndex = lightCommandsTable.getSelectionModel().getFocusedIndex();
+    private void handleDeleteButton() {
+        int focusedIndex = lightCommandsTable.getSelectionModel().getFocusedIndex();
         if (focusedIndex >= 0) {
             timeline.removeAtIndex(focusedIndex);
         }
     }
 
     @FXML
-    private void handleExitButton(ActionEvent event) {
+    private void handleExitButton() {
         timelineRepository.save(timeline);
         System.exit(0);
     }
@@ -270,6 +271,16 @@ public class Controller {
                                 HttpMethod.GET, HttpEntity.EMPTY, String.class);
                     });
         } catch (Exception ignore) {
+        }
+        if (commands.size() > 0) {
+            tableSelect(commands.iterator().next().getDuration());
+        }
+    }
+
+    private void tableSelect(Duration duration) {
+        Integer rowNr = timeline.getNextCommandPosition(duration);
+        if (rowNr >= 0) {
+            lightCommandsTable.getSelectionModel().select(rowNr);
         }
     }
 

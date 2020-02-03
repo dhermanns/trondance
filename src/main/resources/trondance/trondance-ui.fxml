@@ -53,9 +53,9 @@
                     <children>
                         <TableView fx:id="lightCommandsTable" prefHeight="200.0">
                             <columns>
-                                <TableColumn fx:id="timestampColumn" prefWidth="75.0" text="Zeitpunkt" />
+                                <TableColumn fx:id="timestampColumn" prefWidth="100.0" text="Zeitpunkt" />
                                 <TableColumn fx:id="personNumberColumn" prefWidth="75.0" text="Person" />
-                                <TableColumn fx:id="effectColumn" prefWidth="596" text="Effekt" />
+                                <TableColumn fx:id="effectColumn" prefWidth="571" text="Effekt" />
                             </columns>
                         </TableView>
                     </children>
