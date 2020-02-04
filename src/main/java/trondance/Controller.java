@@ -281,6 +281,7 @@ public class Controller {
         Integer rowNr = timeline.getNextCommandPosition(duration);
         if (rowNr >= 0) {
             lightCommandsTable.getSelectionModel().select(rowNr);
+            lightCommandsTable.scrollTo(rowNr);
         }
     }
 

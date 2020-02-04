@@ -24,9 +24,9 @@ public class AppConfiguration {
         simpleClientHttpRequestFactory.setReadTimeout(1000);*/
 
         HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-        httpRequestFactory.setConnectionRequestTimeout(500);
-        httpRequestFactory.setConnectTimeout(500);
-        httpRequestFactory.setReadTimeout(500);
+        httpRequestFactory.setConnectionRequestTimeout(10);
+        httpRequestFactory.setConnectTimeout(10);
+        httpRequestFactory.setReadTimeout(10);
 
         RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
         return restTemplate;
