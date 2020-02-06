@@ -8,13 +8,15 @@ public class LightCommandTO {
     private Integer duration;
     private Integer personNumber;
     private String effect;
+    private String parameter;
 
     public LightCommandTO() {}
 
-    public LightCommandTO(Integer duration, Integer personNumber, String effect) {
+    public LightCommandTO(Integer duration, Integer personNumber, String effect, String parameter) {
         this.duration = duration;
         this.personNumber = personNumber;
         this.effect = effect;
+        this.parameter = parameter;
     }
 
     public static LightCommandTO from(LightCommand lightCommand) {
@@ -22,11 +24,12 @@ public class LightCommandTO {
         return new LightCommandTO(
                 Double.valueOf(lightCommand.getDuration().toMillis()).intValue(),
                 lightCommand.getPersonNumber().intValue(),
-                lightCommand.getEffect());
+                lightCommand.getEffect(),
+                lightCommand.getParameter());
     }
 
     public LightCommand toLightCommand() {
-        return new LightCommand(Duration.millis(duration), personNumber, effect);
+        return new LightCommand(Duration.millis(duration), personNumber, effect, parameter);
     }
 
     public Integer getDuration() {
@@ -51,5 +54,13 @@ public class LightCommandTO {
 
     public void setEffect(String effect) {
         this.effect = effect;
+    }
+
+    public String getParameter() {
+        return parameter;
+    }
+
+    public void setParameter(String parameter) {
+        this.parameter = parameter;
     }
 }

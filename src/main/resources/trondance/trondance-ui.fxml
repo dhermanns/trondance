@@ -42,6 +42,7 @@
                 <Font size="36.0" />
             </font>
         </Label>
+        <ColorPicker fx:id="colorPicker" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
 
         <Button mnemonicParsing="false" onAction="#handlePlay" prefWidth="100.0" text="Play" GridPane.columnIndex="2" GridPane.rowIndex="3" GridPane.valignment="TOP" />
         <Button mnemonicParsing="false" onAction="#handlePause" prefWidth="100.0" text="Pause" GridPane.columnIndex="3" GridPane.rowIndex="3" GridPane.valignment="TOP" />
@@ -55,7 +56,8 @@
                             <columns>
                                 <TableColumn fx:id="timestampColumn" prefWidth="100.0" text="Zeitpunkt" />
                                 <TableColumn fx:id="personNumberColumn" prefWidth="75.0" text="Person" />
-                                <TableColumn fx:id="effectColumn" prefWidth="571" text="Effekt" />
+                                <TableColumn fx:id="effectColumn" prefWidth="75.0" text="Effekt" />
+                                <TableColumn fx:id="parameterColumn" prefWidth="571" text="Parameter" />
                             </columns>
                         </TableView>
                     </children>

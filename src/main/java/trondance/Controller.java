@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -48,6 +49,8 @@ public class Controller {
     @FXML
     Label mediaPlayerCurrentTimeLabel;
     @FXML
+    ColorPicker colorPicker;
+    @FXML
     Slider playbackSlider;
 
     @FXML
@@ -58,6 +61,8 @@ public class Controller {
     private TableColumn<LightCommand, Integer> personNumberColumn;
     @FXML
     private TableColumn<LightCommand, String> effectColumn;
+    @FXML
+    private TableColumn<LightCommand, String> parameterColumn;
 
     @Autowired
     RestTemplate restTemplate;
@@ -81,7 +86,6 @@ public class Controller {
         timestampColumn.setCellFactory(col -> new TableCell<>() {
 
             private TextField textField;
-            private Label label;
 
             @Override
             public void startEdit() {
@@ -145,6 +149,8 @@ public class Controller {
                 cellData -> cellData.getValue().personNumberProperty().asObject());
         effectColumn.setCellValueFactory(
                 cellData -> cellData.getValue().effectProperty());
+        parameterColumn.setCellValueFactory(
+                cellData -> cellData.getValue().parameterProperty());
 
         playbackSlider.setMin(0);
         playbackSlider.setMax(668);
@@ -212,9 +218,9 @@ public class Controller {
     @FXML
     private void handleExecuteFirst() {
 
-        execute(nodeMcu1.getText(), nodeMcu1ChoiceBox.getSelectionModel().getSelectedItem().toString());
+        execute(nodeMcu1.getText(), nodeMcu1ChoiceBox.getSelectionModel().getSelectedItem().toString(), colorPicker.getValue());
         if (recordCheckBox.isSelected()) {
-            recordCommand(1, nodeMcu1ChoiceBox.getSelectionModel().getSelectedItem().toString());
+            recordCommand(1, nodeMcu1ChoiceBox.getSelectionModel().getSelectedItem().toString(), colorPicker.getValue());
             timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
         }
         System.out.println(String.format("Executed %s!", nodeMcu1ChoiceBox.getSelectionModel().getSelectedItem().toString()));
@@ -223,17 +229,17 @@ public class Controller {
     @FXML
     private void handleExecuteSecond() {
 
-        execute(nodeMcu2.getText(), nodeMcu2ChoiceBox.getSelectionModel().getSelectedItem().toString());
+        execute(nodeMcu2.getText(), nodeMcu2ChoiceBox.getSelectionModel().getSelectedItem().toString(), colorPicker.getValue());
         if (recordCheckBox.isSelected()) {
-            recordCommand(2, nodeMcu2ChoiceBox.getSelectionModel().getSelectedItem().toString());
+            recordCommand(2, nodeMcu2ChoiceBox.getSelectionModel().getSelectedItem().toString(), colorPicker.getValue());
             timeline.advanceTimelineTo(mediaPlayer.getCurrentTime().add(Duration.ONE));
         }
         System.out.println(String.format("Executed %s!", nodeMcu2ChoiceBox.getSelectionModel().getSelectedItem().toString()));
     }
 
-    private void recordCommand(int person, String flash) {
+    private void recordCommand(int person, String command, Color color) {
         timeline.add(new LightCommand(
-                mediaPlayer.getCurrentTime(), person, flash));
+                mediaPlayer.getCurrentTime(), person, command, color));
     }
 
     @FXML
@@ -250,11 +256,11 @@ public class Controller {
         System.exit(0);
     }
 
-    private void execute(String ip, String command) {
+    private void execute(String ip, String command, Color color) {
 
         try {
             restTemplate.exchange(
-                    String.format("http://%s/%s", ip, command), HttpMethod.GET, HttpEntity.EMPTY, String.class);
+                    String.format("http://%s/%s%s", ip, command, LightCommand.color2QueryParameter(color)), HttpMethod.GET, HttpEntity.EMPTY, String.class);
         } catch (Exception ignore) {
         }
     }
@@ -267,7 +273,10 @@ public class Controller {
                         System.out.println(String.format("Executed command '%s' for person '%s'.",
                                 command.getEffect(), command.getPersonNumber()));
                         restTemplate.exchange(
-                                String.format("http://%s/%s", getIp(command.getPersonNumber()), command.getEffect()),
+                                String.format("http://%s/%s?%s",
+                                        getIp(command.getPersonNumber()),
+                                        command.getEffect(),
+                                        command.getParameter()),
                                 HttpMethod.GET, HttpEntity.EMPTY, String.class);
                     });
         } catch (Exception ignore) {
